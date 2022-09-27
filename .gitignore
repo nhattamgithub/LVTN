@@ -1,0 +1,24 @@
+# Various IDEs and Editors
+.vscode/
+.idea/
+**/*~
+
+# Mac OSX temporary files
+.DS_Store
+**/.DS_Store
+
+# dfx temporary files
+.dfx/
+canister_ids.json
+.vessel/
+src/sustainations_dao/env.mo
+
+# frontend code
+node_modules/
+package-lock.json
+dist/
+.env
+src/declarations
+src/sustainations_dao_assets/src/styles/app.css
+
+scripts/test.sh
