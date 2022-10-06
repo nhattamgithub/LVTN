@@ -4,7 +4,10 @@ import { Navigate } from "react-router-dom";
 
 const Admin = lazy(() => import("./Admin"));
 const KYCs = lazy(() => import("./kycs/KYCs"));
-// const NewRefillBrand = lazy(() => import("./refill-brands/brand/NewRefillBrand"));
+const ApprovedKYCs = lazy(() => import("./kycs/ApprovedKYCs"));
+const RejectedKYCs = lazy(() => import("./kycs/RejectedKYCs"));
+const PendingKYCs = lazy(() => import("./kycs/PendingKYCs"));
+
 const EditKyc = lazy(() => import("./kycs/kyc/EditKyc"));
 
 const AdminConfig = {
@@ -26,14 +29,37 @@ const AdminConfig = {
               index: true,
               element: <KYCs />
             },
-            // {
-            //   path: 'new',
-            //   element: <NewRefillBrand />
-            // },
             {
-              path: ':kycId/edit',
+              path: ':user_id/edit',
               element: <EditKyc />
             }
+          ]
+        },
+        {
+          path: 'approvedKYCs',
+          children: [
+            {
+              index: true,
+              element: <ApprovedKYCs />
+            },
+          ]
+        },
+        {
+          path: 'rejectedKYCs',
+          children: [
+            {
+              index: true,
+              element: <RejectedKYCs />
+            },
+          ]
+        },
+        {
+          path: 'pendingKYCs',
+          children: [
+            {
+              index: true,
+              element: <PendingKYCs />
+            },
           ]
         },
       ]

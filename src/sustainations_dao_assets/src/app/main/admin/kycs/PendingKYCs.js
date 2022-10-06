@@ -9,7 +9,7 @@ import KYCsHeader from './list/KYCsHeader';
 import KYCTable from './list/KYCTable';
 import urlAPI from 'api/urlAPI';
 
-const KYCs = () => {
+const PendingKYCs = () => {
   const user = useSelector(selectUser);
   const isMobile = useThemeMediaQuery((theme) => theme.breakpoints.down('lg'));
   const [loading, setLoading] = useState(true);
@@ -19,7 +19,7 @@ const KYCs = () => {
 
   useEffect(() => {
     setLoading(true);
-    axios.get(`${urlAPI}/get/all`).then((response) => {
+    axios.get(`${urlAPI}/get/pending`).then((response) => {
       setKycs(response.data);
     });
     setLoading(false);
@@ -32,7 +32,7 @@ const KYCs = () => {
         return kycs;
       }
       return _.filter(kycs, (item) => {
-        return item.username.toLowerCase().includes(searchText.toLowerCase());
+        return item[1].name.toLowerCase().includes(searchText.toLowerCase());
       });
     }
 
@@ -51,11 +51,11 @@ const KYCs = () => {
 
   return (
     <FusePageCarded
-      header={<KYCsHeader handleSearchText={handleSearchText} filterdType={"KYCs"}/>}
-      content={<KYCTable kycs={filteredData} searchText={searchText} filterdType={"KYCs"}/>}
+      header={<KYCsHeader handleSearchText={handleSearchText} filterdType={"Pending KYCs"}/>}
+      content={<KYCTable kycs={filteredData} searchText={searchText} filterdType={"Pending KYCs"}/>}
       scroll={isMobile ? 'normal' : 'content'}
     />
   );
 }
 
-export default KYCs;
+export default PendingKYCs;

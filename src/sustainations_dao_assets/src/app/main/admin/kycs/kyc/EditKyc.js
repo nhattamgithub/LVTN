@@ -14,7 +14,8 @@ import FuseLoading from '@fuse/core/FuseLoading';
 import KycFormHeader from './KycFormHeader';
 import KycForm from './KycForm';
 import _ from 'lodash';
-import linkAPI from '../../../../../api/flaskAPI';
+import urlAPI from 'api/urlAPI';
+import { Principal } from '@dfinity/candid/lib/cjs/idl';
 /**
  * Form Validation Schema
  */
@@ -35,7 +36,7 @@ const EditKyc = () => {
   const user = useSelector(selectUser);
   const navigate = useNavigate();
   const routeParams = useParams();
-  const { kycId } = routeParams;
+  const { user_id } = routeParams;
 
   const methods = useForm({
     mode: 'onChange',
@@ -44,13 +45,14 @@ const EditKyc = () => {
       address: '',
       phone: '',
       image: '',
+      detected_objects: [],
       status: '',
       comments: '',
       approver: '',
       createdAt: '',
       updatedAt: '',
     },
-    resolver: yupResolver(schema),
+    // resolver: yupResolver(schema),
   });
   const { reset } = methods;
 
@@ -58,15 +60,16 @@ const EditKyc = () => {
     (async () => {
       setLoading(true);
       try {
-        axios.get(`${linkAPI}/get?id=${kycId}`).then((response) => {
+        axios.get(`${urlAPI}/getuser?id=${user_id}`).then((response) => {
           if (response.data) {
-            console.log(response.data)
+            console.log("GGGGGGGG",response.data)
             const kyc = response.data;
             reset({
               username: kyc.username,
               address: kyc.address,
               phone: kyc.phone,
               image: kyc.image,
+              detected_objects: kyc.detected_objects,
               status: kyc.kycStatus,
               comments: kyc.comments,
               approver: kyc.approver,
@@ -88,18 +91,18 @@ const EditKyc = () => {
   const onSubmit = async (data) => {
     setSubmitLoading(true);
     const payload = {
-      name: data.name,
-      phone: [data.phone],
-      email: [data.email],
-      address: [data.address],
-      story: [data.story],
+      username: data.username,
+      address: data.address,
+      phone: data.phone,
+      image: data.image,
+      approver: data.approver,
     }
 
     try {
-      const result = await user.actor.updateRefillBrand(brandId, payload, [data.brandOwner], [data.ownerName]);
+      const result = await user.actor.createKYC(user_id, payload);
       if ("ok" in result) {
         dispatch(showMessage({ message: 'Success!' }));
-        navigate('/admin/refill-brands');
+        navigate('/admin/kycs');
       } else {
         throw result?.err;
       }
@@ -108,7 +111,7 @@ const EditKyc = () => {
       const message = {
         "NotAuthorized": "Please sign in!.",
         "AdminRoleRequired": 'Required admin role.',
-        "Notfound": "Brand is not found."
+        "AlreadyExisting": "KYC Already Existing."
       }[Object.keys(error)[0]] || 'Error! Please try again later!'
       dispatch(showMessage({ message }));
     }

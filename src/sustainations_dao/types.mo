@@ -57,9 +57,9 @@ module {
     address : Text;
     phone : Text;
     image : Text;
-    status : ?Text;
+    status : Text;
     comments : ?Text;
-    approver : ?Principal;
+    approver : Text;
     createdAt : ?Int;
     updatedAt : ?Int;
   };
@@ -69,6 +69,7 @@ module {
     address : Text;
     phone : Text;
     image : Text;
+    approver : Text;
   };
 
   // Error codes

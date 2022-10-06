@@ -14,34 +14,33 @@ import { useSelector } from "react-redux";
 import { selectUser } from 'app/store/userSlice';
 import QRCode from "react-qr-code";
 import { useState, useEffect } from 'react';
+import axios from "axios";
+
 import HaventKYC from './HaventKYC';
+import urlAPI from 'api/urlAPI';
 
 const KYC = () => {
   const user = useSelector(selectUser);
+  const { principal } = user;
   const [loading, setLoading] = useState(true)
-  const [kycInfo, setKycInfo] = useState({
-    userId : '',
-    username : '',
-    address : '',
-    phone : '',
-    image : '',
-    status : '',
-    comments : '',
-    approver : '',
-    createdAt : '',
-    updatedAt : '',
-  })
+  const [kycInfo, setKycInfo] = useState(null)
 
   useEffect(() => {
     async function loadData() {
       setLoading(true);
-      const result = await user.actor.getKYC();
-      console.log("KYC INFOR", result)
-      setKycInfo(result.ok);
+      try {
+        await axios.get(`${urlAPI}/getuser?id=${principal}`).then((response) => {
+          console.log("get by userID",response.data);
+          setKycInfo(response.data);
+        });
+      } catch(error){
+        console.log('There was an error!', error.response.data);
+      }
       setLoading(false);
     }
     loadData();
   }, [user]);
+  
 
   if (!user) {
     return (<FuseLoading />)
@@ -70,12 +69,12 @@ const KYC = () => {
                 alt={user.username}
               >
               </Avatar>
-              <div className="flex items-center ml-auto mb-4">
+              {/* <div className="flex items-center ml-auto mb-4">
                 <Button variant="contained" color="secondary" component={NavLinkAdapter} to="update">
                   <FuseSvgIcon size={20}>edit_outlined</FuseSvgIcon>
                   <span className="mx-8">Update KYC Information</span>
                 </Button>
-              </div>
+              </div> */}
             </div>
 
             <Divider className="mt-16 mb-24" />
@@ -103,12 +102,12 @@ const KYC = () => {
 
               <div className="flex items-center">
                 <FuseSvgIcon>security</FuseSvgIcon>
-                <div className="ml-24 leading-6">{kycInfo.status || "N/A"}</div>
+                <div className="ml-24 leading-6">{kycInfo.kycStatus || "N/A"}</div>
               </div>
 
               <div className="flex items-center">
                 <FuseSvgIcon>notes</FuseSvgIcon>
-                <div className="ml-24 leading-6">{kycInfo.comments != '' || "N/A"}</div>
+                <div className="ml-24 leading-6">{kycInfo.comments || "N/A"}</div>
               </div>
             </div>
           </CardContent>

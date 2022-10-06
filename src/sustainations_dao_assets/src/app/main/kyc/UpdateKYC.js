@@ -23,33 +23,26 @@ import QRCode from "react-qr-code";
 import { setS3Object, deleteS3Object } from "../../hooks";
 import { showMessage } from 'app/store/fuse/messageSlice';
 import { useState, useEffect } from 'react';
-import KycMedia from './KycMedia';
+import axios from "axios";
 
+import KycMedia from './KycMedia';
+import urlAPI from 'api/urlAPI';
 
 const UpdateKYC = () => {
   const navigate = useNavigate();
   const user = useSelector(selectUser);
-
-  const [kycInfo, setKycInfo] = useState({
-    userId : '',
-    username : '',
-    address : '',
-    phone : '',
-    image : '',
-    status : '',
-    comments : '',
-    approver : '',
-    createdAt : '',
-    updatedAt : '',
-  })
+  const { principal } = user;
+  const [kycInfo, setKycInfo] = useState({})
 
   useEffect(() => {
     async function loadData() {
       setLoading(true);
-      const result = await user.actor.getKYC();
-      if("ok" in result) {
-        setKycInfo(result.ok);
-
+      try {
+        await axios.get(`${urlAPI}/getuser?id=${principal}`).then((response) => {
+          setKycInfo(response.data);
+        });
+      } catch(error){
+        console.log('There was an error!', error.response.data);
       }
       setLoading(false);
     }
@@ -60,7 +53,7 @@ const UpdateKYC = () => {
   const [loading, setLoading] = useState(false);
   const currentImagePath = kycInfo.image;
   const imageUUID = currentImagePath ? currentImagePath.split("/")[2].split(".")[0] : uuidv4();
-
+  console.log("KYC INFORRRRRRRRR",kycInfo)
   const { control, watch, handleSubmit, formState } = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -76,55 +69,37 @@ const UpdateKYC = () => {
   });
   const image = watch('image');
   const { errors } = formState;
-
   const onSubmit = async (data) => {
     setLoading(true);
-    const payload = {
-      username : data.username,
-      address : data.address,
-      phone : data.phone,
-      image : image.base64data,
-    }
-    try {
-      const result = await user.actor.createKYC(payload);
-      if ("ok" in result) {
-      //   let imageChanged;
-      //   if (image.path) {
-      //     imageChanged = await setS3Object({
-      //       file: image.base64data,
-      //       name: image.path
-      //     });
-      //   } else {
-      //     imageChanged = await deleteS3Object(currentImagePath);
-      //   }
-      //   Promise.resolve(imageChanged).then(() => {
-      //     const newUserState = {
-      //       role: user.role,
-      //       actor: user.actor,
-      //       username: data.username,
-      //       address: data.address,
-      //       phone: data.phone,
-      //       status: data.staus,
-      //       comments: data.comments,
-      //       principal: user.principal,
-      //       avatar: user.avatar
-      //     };
-      //     dispatch(setUser(newUserState));
-      //     dispatch(showMessage({ message: 'Success!' }));
-        navigate('/kyc');
-        // });
-      } else {
-        throw result?.err;
+      const payload = {
+        file : image.file,
+        user_id : principal,
+        username : data.username,
+        address : data.address,
+        phone : data.phone,
       }
-    } catch (error) {
-      console.log(error);
-      const message = {
-        "NotAuthorized": "Please sign in!."
-      }[Object.keys(error)[0]] || 'Error! Please try again later!'
-      dispatch(showMessage({ message }));
+
+    const formData = new FormData();
+    for(const name in payload) {
+      formData.append(name, payload[name]);
+    }
+
+    try {
+      const response = await axios({
+        method: "post",
+        url: `${urlAPI}/kyc`,
+        data: formData,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      dispatch(showMessage({ message: 'Success!' }));
+      navigate('/kyc');
+    }
+    catch(error) {
+      console.log('There was an error!', error.response.data);
     }
     setLoading(false);
   };
+
 
   if (!user) {
     return (<FuseLoading />)
@@ -145,8 +120,8 @@ const UpdateKYC = () => {
                 <TextField
                   className="mt-32"
                   {...field}
-                  label="Username"
-                  placeholder="Username"
+                  label="Full name"
+                  placeholder="Full name"
                   id="username"
                   error={!!errors.username}
                   helperText={errors?.username?.message}
@@ -179,7 +154,7 @@ const UpdateKYC = () => {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <FuseSvgIcon size={20}>local_phone_outlined</FuseSvgIcon>
+                        <FuseSvgIcon size={20}>call</FuseSvgIcon>
                       </InputAdornment>
                     ),
                   }}
@@ -204,7 +179,7 @@ const UpdateKYC = () => {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <FuseSvgIcon size={20}>local_phone_outlined</FuseSvgIcon>
+                        <FuseSvgIcon size={20}>home</FuseSvgIcon>
                       </InputAdornment>
                     ),
                   }}

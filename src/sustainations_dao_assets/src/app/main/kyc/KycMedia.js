@@ -48,7 +48,7 @@ function KycMedia({control, image}) {
   return (
     <Root>
       <div className="text-lg font-bold mt-16 mb-16">KYC Image</div>
-      <div className="text-lg italic mb-16">JPG, PNG or GIF format. Click the box below to upload file.</div>
+      <div className="text-lg italic mb-16">JPG or PNG format. Click the box below to upload file.</div>
       <div className="flex justify-center sm:justify-start flex-wrap -mx-16">
         <Controller
           name="image"
@@ -83,7 +83,7 @@ function KycMedia({control, image}) {
                         resolve({
                           id: uuid,
                           base64data: `data:${file.type};base64,${btoa(reader.result)}`,
-                          path: `${process.env.NODE_ENV}/media/${uuid}.${file.type.split("/")[1]}`
+                          file: file
                         });
                       };
                       reader.onerror = reject;

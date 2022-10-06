@@ -14,12 +14,12 @@ import withRouter from '@fuse/core/withRouter';
 import KYCTableHead from './KYCTableHead';
 
 function KYCTable(props) {
-  const { kycs } = props;
+  const { kycs, filterdType } = props;
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  function handleClick(kycId) {
-    props.navigate(`/admin/kycs/${kycId}/edit`);
+  function handleClick(user_id) {
+    props.navigate(`/admin/kycs/${user_id}/edit`);
   }
 
   function handleChangePage(_event, value) {
@@ -38,7 +38,7 @@ function KYCTable(props) {
         className="flex flex-1 items-center justify-center h-full"
       >
         <Typography color="text.secondary" variant="h5">
-          There are no KYCs!
+          There are no {filterdType}!
         </Typography>
       </motion.div>
     );
@@ -57,8 +57,8 @@ function KYCTable(props) {
                   <TableRow
                     className="h-72 cursor-pointer"
                     hover
-                    key={kyc.request_id}
-                    onClick={() => handleClick(kyc.request_id)}
+                    key={kyc.user_id}
+                    onClick={() => handleClick(kyc.user_id)}
                   >
                     <TableCell
                       className="w-40 md:w-64 text-center"

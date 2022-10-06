@@ -47,10 +47,31 @@ const navigationConfig = [
     children: [
       {
         id: "admin-kycs",
-        title: "KYCs",
+        title: "All KYCs",
         type: "item",
         icon: "admin_panel_settings",
         url: "admin/kycs"
+      },
+      {
+        id: "admin-rejectedKYCs",
+        title: "Rejected KYCs",
+        type: "item",
+        icon: "cancel",
+        url: "admin/rejectedKYCs"
+      },
+      {
+        id: "admin-pendingKYCs",
+        title: "Pending KYCs",
+        type: "item",
+        icon: "pending",
+        url: "admin/pendingKYCs"
+      },
+      {
+        id: "admin-approvedKYCs",
+        title: "Approved KYCs",
+        type: "item",
+        icon: "how_to_reg",
+        url: "admin/approvedKYCs"
       },
     ]
   },

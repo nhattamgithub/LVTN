@@ -5,11 +5,13 @@ import {
   Button,
   Box,
   Card,
-  CardContent
+  CardContent,
+  Hidden
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { FormProvider } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
+import { useState, useEffect } from 'react';
 
 const KycForm = (props) => {
   const { methods, submitLoading, onSubmit, cancelLink, showOwner } = props;
@@ -28,18 +30,14 @@ const KycForm = (props) => {
                 render={({ field }) => (
                   <div className="flex-1 mb-24">
                     <div className="flex items-center mt-16 mb-12">
-                      <Typography className="font-semibold text-16 mx-8">
-                        <span className="text-red-500">*</span>&nbsp;User Name
-                      </Typography>
+                      <Typography className="font-semibold text-16 mx-8">User Name</Typography>
                     </div>
                     <TextField
+                      disabled
                       {...field}
-                      label="User Name"
                       className="mt-8 mb-16"
                       error={!!errors.username}
-                      required
                       helperText={errors?.username?.message}
-                      autoFocus
                       id="username"
                       variant="outlined"
                       fullWidth
@@ -53,16 +51,13 @@ const KycForm = (props) => {
                 render={({ field }) => (
                   <div className="flex-1 mb-24">
                     <div className="flex items-center mt-16 mb-12">
-                      <Typography className="font-semibold text-16 mx-8">
-                        <span className="text-red-500">*</span>&nbsp;Phone
-                      </Typography>
+                      <Typography className="font-semibold text-16 mx-8">Phone</Typography>
                     </div>
                     <TextField
+                      disabled
                       {...field}
-                      label="Phone"
                       className="mt-8 mb-16"
                       error={!!errors.phone}
-                      required
                       helperText={errors?.phone?.message}
                       id="phone"
                       variant="outlined"
@@ -79,16 +74,13 @@ const KycForm = (props) => {
             render={({ field }) => (
               <div className="flex-1 mb-24">
                 <div className="flex items-center mt-16 mb-12">
-                  <Typography className="font-semibold text-16 mx-8">
-                    <span className="text-red-500">*</span>&nbsp;Address
-                  </Typography>
+                  <Typography className="font-semibold text-16 mx-8">Address</Typography>
                 </div>
                 <TextField
+                  disabled
                   {...field}
-                  label="Address"
                   className="mt-8 mb-16"
                   error={!!errors.address}
-                  required
                   helperText={errors?.address?.message}
                   id="name"
                   variant="outlined"
@@ -106,11 +98,10 @@ const KycForm = (props) => {
                   <Typography className="font-semibold text-16 mx-8">Status</Typography>
                 </div>
                 <TextField
+                  disabled
                   {...field}
-                  label="Status"
                   className="mt-8 mb-16"
                   error={!!errors.status}
-                  required
                   helperText={errors?.status?.message}
                   id="name"
                   variant="outlined"
@@ -132,7 +123,6 @@ const KycForm = (props) => {
                   label="Comments"
                   className="mt-8 mb-16"
                   error={!!errors.comments}
-                  required
                   helperText={errors?.comments?.message}
                   id="name"
                   variant="outlined"
@@ -141,34 +131,37 @@ const KycForm = (props) => {
               </div>
             )}
           />
+          <div className="flex">
+            <Controller
+              name="image"
+              control={control}
+              render={({ field: { onChange, value } }) => {
+                if (!value || value === '') {
+                  return null;
+                }
+                return (
+                  <div className="relative flex-1">
+                    <img style={{width: 30 + 'vw'}} src={value} className="w-full block" alt="KYC Image" />
+                  </div>
+                );
+              }}
+            />
 
-          <Controller
-            name="image"
-            control={control}
-            // render={({ field }) => (
-            //   <div className="flex-1 mb-24">
-            //     <div className="flex items-center mt-16 mb-12">
-            //       <Typography className="font-semibold text-16 mx-8">KYC Image</Typography>
-            //     </div>
-            //     <Box
-            //       component="img"
-            //       alt="KYC Image"
-            //       src={}
-            //     />
-            //   </div>
-            // )}
-
-            render={({ field: { onChange, value } }) => {
-              if (!value || value === '') {
-                return null;
-              }
-              return (
-                <div className="relative">
-                  <img style={{width: 30 + 'vw'}} src={value} className="w-full block" alt="note" />
+            <Controller
+              name="detected_objects"
+              control={control}
+              render={({ field: { value } }) => (
+                <div className="mb-24 flex-1">
+                  <div className="flex items-center mt-16 mb-12">
+                    <Typography className="font-semibold text-16 mx-8">Auto-detected result:</Typography>
+                  </div>
+                  {value.map((obj, index) => 
+                    <li key={index} className="mb-4">{obj}</li>
+                  )}
                 </div>
-              );
-            }}
-          />
+              )}
+            />
+          </div>
           
           <React.Fragment>
             <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>

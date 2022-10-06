@@ -69,16 +69,14 @@ const Profile = () => {
               </div>
 
               <div className="flex items-center">
-                <FuseSvgIcon>account_balance_wallet_outlined</FuseSvgIcon>
+                <FuseSvgIcon>home</FuseSvgIcon>
                 <div className="ml-24 leading-6">{profile?.address[0]}</div>
               </div>
 
               <div className="flex">
-                <FuseSvgIcon>local_phone_outlined</FuseSvgIcon>
+                <FuseSvgIcon>call</FuseSvgIcon>
                 <div className="min-w-0 ml-24 space-y-4">
-                  <div className="flex items-center leading-6">
-                    <div className="ml-5">{profile?.phone[0] ||"N/A"}</div>
-                  </div>
+                  <div className="flex items-center leading-6">{profile?.phone[0] ||"N/A"}</div>
                 </div>
               </div>
             </div>

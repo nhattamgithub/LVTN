@@ -381,53 +381,23 @@ shared({caller = owner}) actor class SustainationsDAO(ledgerId : ?Text) = this {
   };
 
   // KYC
-  public shared({caller}) func createKYC(kyc : Types.KYCUpdate) : async Response<Text> {
+  public shared({caller}) func createKYC(userId : Text, kyc : Types.KYCUpdate) : async Response<Text> {
     if(Principal.toText(caller) == "2vxsx-fae") {
       throw Error.reject("NotAuthorized");  //isNotAuthorized
     };
-    switch (state.kycs.get(caller)) {
-      case (? currentKYC) {
-        if(currentKYC.status == ?"rejected") {
-          let updatedKYC = state.kycs.replace(caller, {
-            userId = caller;
-            username = kyc.username;
-            address = kyc.address;
-            phone = kyc.phone;
-            image = kyc.image;
-            status = ?"waiting";
-            comments = currentKYC.comments;
-            approver = currentKYC.approver;
-            createdAt = currentKYC.createdAt;
-            updatedAt = ?Time.now();
-          });
-        };
-        if(currentKYC.status == ?"new") {
-          let updatedKYC = state.kycs.replace(caller, {
-            userId = caller;
-            username = kyc.username;
-            address = kyc.address;
-            phone = kyc.phone;
-            image = kyc.image;
-            status = ?"waiting";
-            comments = currentKYC.comments;
-            approver = currentKYC.approver;
-            createdAt = currentKYC.createdAt;
-            updatedAt = ?Time.now();
-          });
-          #ok(("success"));
-        }
-        else { #err(#AlreadyExisting) };
-      };
+    let userPrincipal = Principal.fromText(userId);
+    switch (state.kycs.get(userPrincipal)) {
+      case (? currentKYC) { #err(#AlreadyExisting); };
       case (null) {
-        let createdKYC = state.kycs.put(caller, {
-          userId = caller;
+        let createdKYC = state.kycs.put(userPrincipal, {
+          userId = userPrincipal;
           username = kyc.username;
           address = kyc.address;
           phone = kyc.phone;
           image = kyc.image;
-          status : ?Text = Option.get(null, ?"new");
+          status = "approved";
           comments : ?Text = Option.get(null, ?"");
-          approver : ?Principal = null;
+          approver = kyc.approver;
           createdAt : ?Int = Option.get(null, ?Time.now());
           updatedAt : ?Int = Option.get(null, ?Time.now());
         });
@@ -436,13 +406,13 @@ shared({caller = owner}) actor class SustainationsDAO(ledgerId : ?Text) = this {
     };
   };
 
-  public shared query({caller}) func getKYC() : async Response<(Types.KYC)>{
-    if(Principal.toText(caller) == "2vxsx-fae") {
-      throw Error.reject("NotAuthorized");  //isNotAuthorized
-    };
-    let kyc = state.kycs.get(caller);
-    return Result.fromOption(kyc, #NotFound);
-  };
+  // public shared query({caller}) func getKYC() : async Response<(Types.KYC)>{
+  //   if(Principal.toText(caller) == "2vxsx-fae") {
+  //     throw Error.reject("NotAuthorized");  //isNotAuthorized
+  //   };
+  //   let kyc = state.kycs.get(caller);
+  //   return Result.fromOption(kyc, #NotFound);
+  // };
 
   public shared query({caller}) func listKYCs() : async Response<[(Principal, Types.KYC)]>{
     var list : [(Principal, Types.KYC)] = [];
@@ -455,101 +425,71 @@ shared({caller = owner}) actor class SustainationsDAO(ledgerId : ?Text) = this {
     #ok((list));
   };
 
-  func isKYCedUser(userId : Principal) : async Bool{
-    let kyc = state.kycs.get(userId);
-    switch (kyc) {
-      case null{
-        return false;
-      };
-      case (? currentKYC) {
-        if(currentKYC.status == ?"approved") {
-          return true;
-        } else {
-          return false;
-        }
-      };
-    };
-  };
+  // func isKYCedUser(userId : Principal) : async Bool{
+  //   let kyc = state.kycs.get(userId);
+  //   switch (kyc) {
+  //     case null{
+  //       return false;
+  //     };
+  //     case (? currentKYC) {
+  //       if(currentKYC.status == ?"approved") {
+  //         return true;
+  //       } else {
+  //         return false;
+  //       }
+  //     };
+  //   };
+  // };
 
-  public shared query({caller}) func getKYCStatus() : async Response<(?Text, ?Text)>{
-    if(Principal.toText(caller) == "2vxsx-fae") {
-      throw Error.reject("NotAuthorized");  //isNotAuthorized
-    };
-    switch (state.kycs.get(caller)) {
-      case null{
-        #err(#NotFound);
-      };
-      case (? currentKYC) {
-        let kycStatus = currentKYC.status;
-        #ok(kycStatus, currentKYC.comments);
-      };
-    };
-  };
+  // public shared query({caller}) func getKYCStatus() : async Response<(?Text, ?Text)>{
+  //   if(Principal.toText(caller) == "2vxsx-fae") {
+  //     throw Error.reject("NotAuthorized");  //isNotAuthorized
+  //   };
+  //   switch (state.kycs.get(caller)) {
+  //     case null{
+  //       #err(#NotFound);
+  //     };
+  //     case (? currentKYC) {
+  //       let kycStatus = currentKYC.status;
+  //       #ok(kycStatus, currentKYC.comments);
+  //     };
+  //   };
+  // };
 
-  public shared({caller}) func updateKYC(kyc : Types.KYC) : async Response<Text>{
-    if(Principal.toText(caller) == "2vxsx-fae") {
-      throw Error.reject("NotAuthorized");  //isNotAuthorized
-    };
-    switch (state.kycs.get(caller)) {
-      case null{
-        #err(#NotFound);
-      };
-      case (? currentKYC) {
-        let updatedKYC = state.kycs.replace(caller, {
-          userId = caller;
-          username = currentKYC.username;
-          address = currentKYC.address;
-          phone = currentKYC.phone;
-          image = currentKYC.image;
-          status = ?"waiting";
-          comments = currentKYC.comments;
-          approver : ?Principal = null;
-          createdAt = currentKYC.createdAt;
-          updatedAt = ?Time.now();
-        });
-        #ok("Success");
-      };
-    };
-  };
+  // public shared({caller}) func updateKYC(kyc : Types.KYC) : async Response<Text>{
+  //   if(Principal.toText(caller) == "2vxsx-fae") {
+  //     throw Error.reject("NotAuthorized");  //isNotAuthorized
+  //   };
+  //   switch (state.kycs.get(caller)) {
+  //     case null{
+  //       #err(#NotFound);
+  //     };
+  //     case (? currentKYC) {
+  //       let updatedKYC = state.kycs.replace(caller, {
+  //         userId = caller;
+  //         username = currentKYC.username;
+  //         address = currentKYC.address;
+  //         phone = currentKYC.phone;
+  //         image = currentKYC.image;
+  //         status = ?"waiting";
+  //         comments = currentKYC.comments;
+  //         approver : ?Principal = null;
+  //         createdAt = currentKYC.createdAt;
+  //         updatedAt = ?Time.now();
+  //       });
+  //       #ok("Success");
+  //     };
+  //   };
+  // };
 
-  public shared({caller}) func approveKYC(kycStatus : Text, comments : Text, userId : Text) : async Response<Text>{
-    if(Principal.toText(caller) == "2vxsx-fae") {
-      throw Error.reject("NotAuthorized");  //isNotAuthorized
-    };
-    switch (state.kycs.get((Principal.fromText(userId)))) {
-      case null{
-        #err(#NotFound);
-      };
-      case (?currentKYC) {
-        if(currentKYC.status == ?"approved") {
-          #ok("Already approved");
-        } else{
-          let kyc_updated = state.kycs.replace(Principal.fromText(userId), {
-            userId = caller;
-            username = currentKYC.username;
-            address = currentKYC.address;
-            phone = currentKYC.phone;
-            image = currentKYC.image;
-            status = ?kycStatus;
-            comments = currentKYC.comments;
-            approver : ?Principal= ?caller;
-            createdAt = currentKYC.createdAt;
-            updatedAt = ?Time.now();
-          });
-          #ok("Success");
-        };
-      };
-    };
-  };
+  // public shared({caller}) func deleteAllKYCs() : async Response<Text>{
+  //   if(Principal.toText(caller) == "2vxsx-fae") {
+  //     throw Error.reject("NotAuthorized");  //isNotAuthorized
+  //   };
 
-  public shared({caller}) func deleteAllKYCs() : async Response<Text>{
-    if(Principal.toText(caller) == "2vxsx-fae") {
-      throw Error.reject("NotAuthorized");  //isNotAuthorized
-    };
-
-    for((K,V) in state.kycs.entries()) {
-      let deleted = state.kycs.delete(K);
-    };
-    #ok("Success");
-  };
+  //   for((K,V) in state.kycs.entries()) {
+  //     let deleted = state.kycs.delete(K);
+  //   };
+  //   #ok("Success");
+  // };
 }
