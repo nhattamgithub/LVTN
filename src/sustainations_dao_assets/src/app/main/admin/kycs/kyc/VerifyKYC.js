@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 import axios from "axios";
 
 import { selectUser } from 'app/store/userSlice';
@@ -15,22 +13,11 @@ import KycFormHeader from './KycFormHeader';
 import KycForm from './KycForm';
 import _ from 'lodash';
 import urlAPI from 'api/urlAPI';
-import { Principal } from '@dfinity/candid/lib/cjs/idl';
-/**
- * Form Validation Schema
- */
-const schema = yup.object().shape({
-  name: yup
-    .string()
-    .required('You must enter a brand name'),
-  brandOwner: yup
-    .string()
-    .required('You must enter a brand owner'),
-});
 
-const EditKyc = () => {
+const VerifyKYC = () => {
   const [loading, setLoading] = useState(true);
-  const [submitLoading, setSubmitLoading] = useState(false);
+  const [approveLoading, setApproveLoading] = useState(false);
+  const [rejectLoading, setRejectLoading] = useState(false);
   const dispatch = useDispatch();
   const isMobile = useThemeMediaQuery((theme) => theme.breakpoints.down('lg'));
   const user = useSelector(selectUser);
@@ -51,8 +38,8 @@ const EditKyc = () => {
       approver: '',
       createdAt: '',
       updatedAt: '',
+      similar_faces: []
     },
-    // resolver: yupResolver(schema),
   });
   const { reset } = methods;
 
@@ -75,6 +62,7 @@ const EditKyc = () => {
               approver: kyc.approver,
               createdAt: kyc.createdAt,
               updatedAt: kyc.updatedAt,
+              similar_faces: kyc.similar_faces
             });
           } else {
             navigate('/404');
@@ -88,8 +76,37 @@ const EditKyc = () => {
     })();
   }, [user]);
 
-  const onSubmit = async (data) => {
-    setSubmitLoading(true);
+  const onReject = async (data) => {
+    setRejectLoading(true);
+    const status = "rejected";
+    try {
+      const response = await axios({
+        method: "get",
+        url: `${urlAPI}/update/kycstatus?id=${user_id}&status=${status}`,
+      });
+      const result = await user.actor.deleteKYC(user_id);
+      if("ok" in result){
+        console.log(result);
+      } else {
+        throw result?.err;
+      }
+      dispatch(showMessage({ message: 'Success!' }));
+      navigate('/admin/kycs');
+    } catch (error) {
+      console.log(error);
+      const message = {
+        "NotAuthorized": "Please sign in!.",
+        "AdminRoleRequired": 'Required admin role.',
+        "AlreadyExisting": "KYC Already Existing."
+      }[Object.keys(error)[0]] || 'Error! Please try again later!'
+      dispatch(showMessage({ message }));
+    };
+    setRejectLoading(false);
+  };
+
+  const onApprove = async (data) => {
+    setApproveLoading(true);
+    const status = "approved";
     const payload = {
       username: data.username,
       address: data.address,
@@ -97,15 +114,19 @@ const EditKyc = () => {
       image: data.image,
       approver: data.approver,
     }
-
     try {
+      const response = await axios({
+        method: "get",
+        url: `${urlAPI}/update/kycstatus?id=${user_id}&status=${status}`,
+      });
       const result = await user.actor.createKYC(user_id, payload);
-      if ("ok" in result) {
-        dispatch(showMessage({ message: 'Success!' }));
-        navigate('/admin/kycs');
+      if("ok" in result){
+        console.log(result);
       } else {
         throw result?.err;
       }
+      dispatch(showMessage({ message: 'Success!' }));
+      navigate('/admin/kycs');
     } catch (error) {
       console.log(error);
       const message = {
@@ -115,7 +136,7 @@ const EditKyc = () => {
       }[Object.keys(error)[0]] || 'Error! Please try again later!'
       dispatch(showMessage({ message }));
     }
-    setSubmitLoading(false);
+    setApproveLoading(false);
   };
 
   if (loading) {
@@ -126,8 +147,11 @@ const EditKyc = () => {
     <FusePageCarded
       header={<KycFormHeader actionText="Edit" />}
       content={<KycForm
-        methods={methods} submitLoading={submitLoading}
-        onSubmit={onSubmit}
+        methods={methods} 
+        approveLoading={approveLoading}
+        rejectLoading={rejectLoading}
+        onReject={onReject}
+        onApprove={onApprove}
         showOwner={true}
       />}
       scroll={isMobile ? 'normal' : 'content'}
@@ -135,4 +159,4 @@ const EditKyc = () => {
   );
 }
 
-export default EditKyc;
+export default VerifyKYC;

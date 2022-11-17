@@ -406,14 +406,6 @@ shared({caller = owner}) actor class SustainationsDAO(ledgerId : ?Text) = this {
     };
   };
 
-  // public shared query({caller}) func getKYC() : async Response<(Types.KYC)>{
-  //   if(Principal.toText(caller) == "2vxsx-fae") {
-  //     throw Error.reject("NotAuthorized");  //isNotAuthorized
-  //   };
-  //   let kyc = state.kycs.get(caller);
-  //   return Result.fromOption(kyc, #NotFound);
-  // };
-
   public shared query({caller}) func listKYCs() : async Response<[(Principal, Types.KYC)]>{
     var list : [(Principal, Types.KYC)] = [];
     if(Principal.toText(caller) == "2vxsx-fae") {
@@ -425,71 +417,22 @@ shared({caller = owner}) actor class SustainationsDAO(ledgerId : ?Text) = this {
     #ok((list));
   };
 
-  // func isKYCedUser(userId : Principal) : async Bool{
-  //   let kyc = state.kycs.get(userId);
-  //   switch (kyc) {
-  //     case null{
-  //       return false;
-  //     };
-  //     case (? currentKYC) {
-  //       if(currentKYC.status == ?"approved") {
-  //         return true;
-  //       } else {
-  //         return false;
-  //       }
-  //     };
-  //   };
-  // };
+  public shared({caller}) func deleteAllKYCs() : async Response<Text>{
+    if(Principal.toText(caller) == "2vxsx-fae") {
+      throw Error.reject("NotAuthorized");  //isNotAuthorized
+    };
 
-  // public shared query({caller}) func getKYCStatus() : async Response<(?Text, ?Text)>{
-  //   if(Principal.toText(caller) == "2vxsx-fae") {
-  //     throw Error.reject("NotAuthorized");  //isNotAuthorized
-  //   };
-  //   switch (state.kycs.get(caller)) {
-  //     case null{
-  //       #err(#NotFound);
-  //     };
-  //     case (? currentKYC) {
-  //       let kycStatus = currentKYC.status;
-  //       #ok(kycStatus, currentKYC.comments);
-  //     };
-  //   };
-  // };
+    for((K,V) in state.kycs.entries()) {
+      let deleted = state.kycs.delete(K);
+    };
+    #ok("Success");
+  };
 
-  // public shared({caller}) func updateKYC(kyc : Types.KYC) : async Response<Text>{
-  //   if(Principal.toText(caller) == "2vxsx-fae") {
-  //     throw Error.reject("NotAuthorized");  //isNotAuthorized
-  //   };
-  //   switch (state.kycs.get(caller)) {
-  //     case null{
-  //       #err(#NotFound);
-  //     };
-  //     case (? currentKYC) {
-  //       let updatedKYC = state.kycs.replace(caller, {
-  //         userId = caller;
-  //         username = currentKYC.username;
-  //         address = currentKYC.address;
-  //         phone = currentKYC.phone;
-  //         image = currentKYC.image;
-  //         status = ?"waiting";
-  //         comments = currentKYC.comments;
-  //         approver : ?Principal = null;
-  //         createdAt = currentKYC.createdAt;
-  //         updatedAt = ?Time.now();
-  //       });
-  //       #ok("Success");
-  //     };
-  //   };
-  // };
-
-  // public shared({caller}) func deleteAllKYCs() : async Response<Text>{
-  //   if(Principal.toText(caller) == "2vxsx-fae") {
-  //     throw Error.reject("NotAuthorized");  //isNotAuthorized
-  //   };
-
-  //   for((K,V) in state.kycs.entries()) {
-  //     let deleted = state.kycs.delete(K);
-  //   };
-  //   #ok("Success");
-  // };
+  public shared({caller}) func deleteKYC(userId : Text) : async Response<Text>{
+    if(Principal.toText(caller) == "2vxsx-fae") {
+      throw Error.reject("NotAuthorized");  //isNotAuthorized
+    };
+    let deleted = state.kycs.delete(Principal.fromText(userId));
+    #ok("Success");
+  };
 }

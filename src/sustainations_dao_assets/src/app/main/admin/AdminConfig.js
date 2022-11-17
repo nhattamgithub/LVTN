@@ -8,7 +8,7 @@ const ApprovedKYCs = lazy(() => import("./kycs/ApprovedKYCs"));
 const RejectedKYCs = lazy(() => import("./kycs/RejectedKYCs"));
 const PendingKYCs = lazy(() => import("./kycs/PendingKYCs"));
 
-const EditKyc = lazy(() => import("./kycs/kyc/EditKyc"));
+const VerifyKYC = lazy(() => import("./kycs/kyc/VerifyKYC"));
 
 const AdminConfig = {
   settings: {
@@ -30,8 +30,8 @@ const AdminConfig = {
               element: <KYCs />
             },
             {
-              path: ':user_id/edit',
-              element: <EditKyc />
+              path: ':user_id/verify',
+              element: <VerifyKYC />
             }
           ]
         },

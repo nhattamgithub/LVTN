@@ -19,7 +19,7 @@ function KYCTable(props) {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   function handleClick(user_id) {
-    props.navigate(`/admin/kycs/${user_id}/edit`);
+    props.navigate(`/admin/kycs/${user_id}/verify`);
   }
 
   function handleChangePage(_event, value) {

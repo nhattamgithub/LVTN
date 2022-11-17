@@ -22,8 +22,12 @@ import urlAPI from 'api/urlAPI';
 const KYC = () => {
   const user = useSelector(selectUser);
   const { principal } = user;
-  const [loading, setLoading] = useState(true)
-  const [kycInfo, setKycInfo] = useState(null)
+  const [loading, setLoading] = useState(true);
+  const [kycInfo, setKycInfo] = useState(null);
+
+  if (!user) {
+    return (<FuseLoading />)
+  }
 
   useEffect(() => {
     async function loadData() {
@@ -40,15 +44,23 @@ const KYC = () => {
     }
     loadData();
   }, [user]);
-  
-
-  if (!user) {
-    return (<FuseLoading />)
-  }
 
   if (!kycInfo) {
     return (<HaventKYC />)
   }
+
+  const UpdateKYC = () => {
+    if(kycInfo.kycStatus == "rejected") {
+      return (
+        <div className="flex items-center ml-auto mb-4">
+          <Button variant="contained" color="secondary" component={NavLinkAdapter} to="update">
+            <FuseSvgIcon size={20}>edit_outlined</FuseSvgIcon>
+            <span className="mx-8">Update KYC Information</span>
+          </Button>
+        </div>
+      )
+    };
+  };
 
   return (
     <div className="relative flex flex-col flex-auto items-center">
@@ -69,12 +81,7 @@ const KYC = () => {
                 alt={user.username}
               >
               </Avatar>
-              {/* <div className="flex items-center ml-auto mb-4">
-                <Button variant="contained" color="secondary" component={NavLinkAdapter} to="update">
-                  <FuseSvgIcon size={20}>edit_outlined</FuseSvgIcon>
-                  <span className="mx-8">Update KYC Information</span>
-                </Button>
-              </div> */}
+              <UpdateKYC></UpdateKYC>
             </div>
 
             <Divider className="mt-16 mb-24" />
