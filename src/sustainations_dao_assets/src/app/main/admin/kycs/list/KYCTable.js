@@ -19,7 +19,8 @@ function KYCTable(props) {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   function handleClick(user_id) {
-    props.navigate(`/admin/kycs/${user_id}/verify`);
+    // props.navigate(`/admin/kycs/${user_id}/verify`);
+    window.location.replace(`/admin/kycs/${user_id}/verify`);
   }
 
   function handleChangePage(_event, value) {
@@ -85,9 +86,9 @@ function KYCTable(props) {
                       {kyc.kycStatus}
                     </TableCell>
 
-                    <TableCell className="p-4 md:p-16" component="th" scope="row">
+                    {/* <TableCell className="p-4 md:p-16" component="th" scope="row">
                       {kyc.comments}
-                    </TableCell>
+                    </TableCell> */}
 
                     <TableCell className="p-4 md:p-16" component="th" scope="row">
                       {kyc.createdAt}

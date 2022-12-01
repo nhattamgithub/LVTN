@@ -34,12 +34,12 @@ const rows = [
     disablePadding: false,
     label: 'Status',
   },
-  {
-    id: 'comments',
-    align: 'left',
-    disablePadding: false,
-    label: 'Comments',
-  },
+  // {
+  //   id: 'comments',
+  //   align: 'left',
+  //   disablePadding: false,
+  //   label: 'Comments',
+  // },
   {
     id: 'createdAt',
     align: 'left',
